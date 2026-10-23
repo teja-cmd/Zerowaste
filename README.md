@@ -1,99 +1,177 @@
-# Zerowaste
+# ZeroWaste India
 
-WEB DEVELOPMENT
+ZeroWaste helps people and community organizations in India share surplus food
+with nearby recipients. Donors can publish food listings, and recipients can
+find available food on a map and request a pickup.
 
+## Features
 
-📝 Problem Statement
-Every year, vast amounts of edible food are wasted, while millions of people go hungry. There is a critical need for a smart, accessible system to bridge this gap. Current solutions lack real-time intelligence, geolocation, and streamlined logistics. ZeroWaste aims to solve this by creating an intelligent web platform that connects food donors with verified recipients, ensuring excess food reaches those in need—quickly, safely, and efficiently.
+- Sign up and sign in as a donor or receiver.
+- Publish a food donation with its type, quantity, expiry, pickup window,
+  location, and an optional image.
+- Browse available donations on an interactive map.
+- Request a pickup for an available donation.
+- Manage your profile and view your donations.
+- Provide administrative pages for authorized admin accounts.
 
+## Technology
 
-*Abstract: ZeroWaste – AI-Powered Geo-Intelligent Food Donation & Rescue System*  
+- React 18, TypeScript, and Vite
+- Tailwind CSS and shadcn/ui components
+- Supabase Auth, Postgres, and Storage
+- Leaflet and OpenStreetMap for maps
+- React Router and TanStack Query
 
-Food wastage remains a global challenge, while millions face hunger daily. The *ZeroWaste* platform aims to bridge this gap by utilizing AI and geolocation technologies to create a seamless, scalable, and intelligent food donation ecosystem. This web-based solution connects food donors—including households, restaurants, and caterers—with verified recipients such as NGOs, shelters, and individuals in need.  
+## Requirements
 
-Core functionalities include AI-assisted food quantity estimation, interactive geo-mapping for donation tracking, automated logistics management for optimized pickups, and role-based verification to ensure authenticity and transparency. The platform provides *real-time monitoring, fraud prevention, and environmental impact analysis, contributing to a **sustainable and efficient* food rescue network. With *ZeroWaste, surplus food can be swiftly redirected to those in need, minimizing waste and **maximizing societal benefit*.
+- Node.js 18 or newer
+- npm
+- A Supabase project for authentication and persistent application data
 
-$$$$:tech stack used for this website : 
-html,css,js and open ai resources like lovable ai , google ai studios ,
-chat gpt ,node js, jason , type script, supabase data base 
+## Get started
 
-Here are the *key features* of the *ZeroWaste – AI-Powered Geo-Intelligent Food Donation & Rescue System*:  
+1. Clone the repository and enter the project directory.
+2. Install dependencies:
 
-### *🚀 Donor Panel*  
-✔ *Easy Registration:* Sign up via email or OAuth (Google, Facebook, etc.)  
-✔ *AI-Powered Food Estimation:* Automatically estimate food quantity from images  
-✔ *Detailed Listings:* Specify food type (veg/non-veg, perishable/non-perishable), expiry window, pickup deadline  
-✔ *Real-Time Location Autofill:* GPS-based location detection for quick posting  
-✔ *Donation Tracking:* Monitor food status—Pending → Accepted → Picked → Verified  
+   ```sh
+   npm install
+   ```
 
-### *🤝 Receiver Panel (NGOs, Individuals, Volunteers)*  
-✔ *Verified Role-Based Signups:* Ensure credibility through verification steps  
-✔ *Interactive Map View:* Browse available food donations via live maps  
-✔ *Advanced Filters:* Sort by food type, freshness, and proximity  
-✔ *Easy Pickup Requests:* Request or accept food donations in one click  
-✔ *Feedback & Ratings:* Confirm receipt and share experiences  
+3. Configure Supabase as described in [Supabase setup](#supabase-setup).
+4. Start the development server:
 
-### *🌍 GeoMap Dashboard*  
-✔ *Real-Time Donation Status:*  
-   - 🟢 Fresh & Available  
-   - 🟡 Near Expiry  
-   - 🔴 Already Picked/Expired  
-✔ *Live Routing for Pickup:* Optimized directions via Google Directions API  
-✔ *AI Logistics Optimization:* Smart scheduling for efficient pickups  
+   ```sh
+   npm run dev
+   ```
 
-### *🔧 Admin Panel*  
-✔ *User & Post Moderation:* Manage donor and receiver activities  
-✔ *Daily Reports & Analytics:* Track food saved (kg), people served, emissions prevented (CO₂ equivalent)  
-✔ *Fraud Detection & Flagging:* Identify fraudulent users or expired posts  
-✔ *NGO & Volunteer Onboarding:* Expand the network with trusted organizations  
+5. Open the local URL printed by Vite in your browser.
 
-This system *maximizes efficiency, **reduces food waste, and **ensures food reaches those in need* through smart technology. Would you like to explore how AI models can be fine-tuned for food estimation or fraud detection? 🚀
+Vite is configured to use port `8080` by default. If that port is already in
+use, Vite will report the address it selected.
 
+## Supabase setup
 
+The application uses Supabase for account authentication, profiles, donations,
+pickup requests, and image storage. To connect your own Supabase project:
 
-![Screenshot 2025-04-13 062439](https://github.com/user-attachments/assets/8e106f3b-42be-4435-8099-014b542486df)
+1. Create a project in Supabase.
+2. Create a `.env.local` file in the project root.
+3. Set the project URL and **publishable/anon key**:
 
-Home page
+   ```dotenv
+   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-supabase-publishable-key
+   ```
 
-![Screenshot 2025-04-13 062636](https://github.com/user-attachments/assets/f333613f-cd28-466a-bb3d-6b7f6a6dfa29)
+   Vite exposes variables prefixed with `VITE_` to browser code. Use only the
+   project's publishable (anon) key here; never put a Supabase service-role key
+   or other secret in a `VITE_` variable.
 
-Regestration Page
+4. Apply the SQL migrations in `supabase/migrations/` in timestamp order. You
+   can use the Supabase CLI (`supabase link` followed by `supabase db push`) or
+   run the migration SQL through the Supabase SQL Editor.
+5. Enable the email sign-in method in your Supabase project's authentication
+   settings and configure any confirmation/redirect URLs for your environment.
 
-![Screenshot 2025-04-13 063210](https://github.com/user-attachments/assets/5e569fd9-c094-4dc1-8e75-75c94fa4ba59)
+The migrations create the application tables, access policies, and storage
+buckets used by the app. Keep Row Level Security enabled and review policies
+before changing them. The admin page requires an account with the `admin` role;
+grant that role only through a trusted administrative process, never through
+user-controlled client input.
 
+## Available commands
 
-regestration successful
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server. |
+| `npm run build` | Build the production app into `dist/`. |
+| `npm run build:dev` | Build using Vite's development mode. |
+| `npm run preview` | Serve the production build locally for a preview. |
+| `npm run lint` | Run ESLint across the project. |
 
-![Screenshot 2025-04-13 062818](https://github.com/user-attachments/assets/9c4077f3-5be8-4092-9dc1-9deeebc0aca0)
+## Application routes
 
-confermation mail
+| Path | Page | Access |
+| --- | --- | --- |
+| `/` | Home | Public |
+| `/map` | Browse donations on the map | Public |
+| `/about` | About ZeroWaste | Public |
+| `/login` | Sign in | Public |
+| `/register` | Create an account | Public |
+| `/donate` | Create a donation listing | Signed-in users |
+| `/donations` | Donation management | Signed-in users |
+| `/profile` | Profile and account details | Signed-in users |
+| `/admin` | Admin dashboard | Admin accounts |
 
-![Screenshot 2025-04-13 062902](https://github.com/user-attachments/assets/0fbb0bc2-46f1-47f8-8e08-f0297651480d)
+## Project structure
 
-sign in page
+```text
+src/
+  components/       Shared UI, authentication, donation, layout, and map components
+  data/             Sample application data
+  hooks/            Authentication and UI hooks
+  integrations/     Supabase client and generated database types
+  lib/              Shared utilities
+  pages/            Route-level pages
+  types/            Application data types
+supabase/
+  migrations/       Database schema, access policies, and workflow migrations
+```
 
-![Screenshot 2025-04-13 063621](https://github.com/user-attachments/assets/8b148237-e736-40ac-9598-83b6be8da9dd)
+## Maps and image uploads
 
-donor panel
+Map tiles are provided by OpenStreetMap through Leaflet. Follow OpenStreetMap's
+attribution requirements and tile usage policy when deploying the application
+or serving substantial traffic. Donation images are uploaded to Supabase
+Storage; the database migrations configure the buckets and associated access
+policies.
 
-![Screenshot 2025-04-13 063739](https://github.com/user-attachments/assets/f3e63bb3-dc61-49d1-9881-9f280a56b250)
+## Open to contributions
 
-my donation 
+ZeroWaste India is open to community contributions. Whether you want to fix a
+bug, improve the user experience, document setup steps, or propose a new
+feature, we welcome thoughtful pull requests and issue reports.
 
-![Image 2025-04-13 at 06 45 43_176f1c41](https://github.com/user-attachments/assets/1b864dda-b61e-43c9-b381-5883843c0a8d)
+If you are exploring the codebase for the first time, start with a small change,
+share your idea in an issue, and help us improve the platform for food recovery
+communities across India.
 
-live location of food
+## Contributing
 
-![Screenshot 2025-04-13 065223](https://github.com/user-attachments/assets/47186cde-663c-4cdd-9300-833cfb28f7eb)
+1. Fork the repository and create a branch for your change.
+2. Keep your work focused and easy to review.
+3. Install dependencies with `npm install`.
+4. Run the relevant checks before opening a pull request:
 
-about panel (admin panel)
+   ```sh
+   npm run lint
+   npm run build
+   ```
 
+5. Open a pull request with a clear summary, the problem it solves, and any
+   screenshots or setup notes that help reviewers verify the change.
+6. Include reproduction or manual verification steps for behavior changes,
+   since there is currently no automated test script defined in
+   `package.json`.
 
+Code and documentation contributions are both welcome. For larger ideas,
+please open an issue first so the approach can be discussed before significant
+work begins.
 
+## Future scope
 
+The current platform provides the foundation for a broader food recovery and
+redistribution ecosystem in India. Future enhancements could include:
 
+- Volunteer matching and route optimization for pickups.
+- Real-time donation alerts for nearby NGOs, shelters, and community kitchens.
+- Multi-language support for local communities and district-level operations.
+- Dashboard analytics for impact tracking, food saved, and pickup efficiency.
+- Integration with local food safety and compliance workflows.
+- Better donor-recipient matching based on geography, inventory type, and
+  urgency.
+- Community moderation tools and reporting for safer, more trusted exchanges.
 
-
-
-
-
+These improvements would help turn ZeroWaste into a stronger local resilience
+platform for reducing food waste and connecting surplus food with people who
+need it.
