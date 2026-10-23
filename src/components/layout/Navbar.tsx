@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Globe, LogIn, User, PlusCircle, LogOut } from "lucide-react";
+import { Menu, X, Globe, LogIn, User, PlusCircle, LogOut, CircleUserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -50,6 +50,12 @@ const Navbar = () => {
           
           {session ? (
             <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/profile">
+                  <CircleUserRound className="h-4 w-4 mr-1" />
+                  Profile
+                </Link>
+              </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link to="/donations">
                   <PlusCircle className="h-4 w-4 mr-1" />
@@ -104,7 +110,13 @@ const Navbar = () => {
           {session ? (
             <div className="flex flex-col space-y-2">
               <Button variant="outline" size="sm" asChild>
-                <Link to="/donations">
+                <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                  <CircleUserRound className="h-4 w-4 mr-2" />
+                  My Profile
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/donations" onClick={() => setIsMenuOpen(false)}>
                   <PlusCircle className="h-4 w-4 mr-2" />
                   My Donations
                 </Link>

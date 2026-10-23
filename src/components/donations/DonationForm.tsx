@@ -13,6 +13,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/hooks/useAuth";
 
+const INDIA_LIMITS = { north: 37.6, south: 6.4, east: 97.5, west: 68.1 };
+
+const getDateTimeMin = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 const DonationForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -51,6 +59,16 @@ const DonationForm = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({ title: "Unsupported file", description: "Choose an image file.", variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Image is too large", description: "Choose an image smaller than 5 MB.", variant: "destructive" });
+        e.target.value = "";
+        return;
+      }
       setImageFile(file);
       
       const reader = new FileReader();
@@ -67,11 +85,17 @@ const DonationForm = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
           setIsGettingLocation(false);
+          const { latitude, longitude } = position.coords;
+          if (latitude < INDIA_LIMITS.south || latitude > INDIA_LIMITS.north || longitude < INDIA_LIMITS.west || longitude > INDIA_LIMITS.east) {
+            toast({
+              title: "Location outside India",
+              description: "ZeroWaste currently accepts donation locations within India.",
+              variant: "destructive",
+            });
+            return;
+          }
+          setLocation({ lat: latitude, lng: longitude });
           toast({
             title: "Location detected",
             description: "Your current location has been added to the donation.",
@@ -98,31 +122,16 @@ const DonationForm = () => {
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
-    if (!session?.user.id) return null;
-    
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `${session.user.id}/${fileName}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('donation-images')
-        .upload(filePath, file);
-        
-      if (uploadError) {
-        console.error("Error uploading image:", uploadError);
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('donation-images')
-        .getPublicUrl(filePath);
-        
-      return data.publicUrl;
-    } catch (error) {
-      console.error("Error in upload process:", error);
-      return null;
-    }
+    if (!session?.user.id) throw new Error("Please sign in before uploading a photo.");
+
+    const fileExt = file.name.split('.').pop() || "jpg";
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `${session.user.id}/${fileName}`;
+    const { error } = await supabase.storage.from('donation-images').upload(filePath, file);
+    if (error) throw error;
+
+    const { data } = supabase.storage.from('donation-images').getPublicUrl(filePath);
+    return data.publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -134,6 +143,17 @@ const DonationForm = () => {
         description: "Please ensure you're logged in and location is provided.",
         variant: "destructive",
       });
+      return;
+    }
+
+    const expiryDate = new Date(formData.expiry);
+    const pickupDate = new Date(formData.pickup);
+    if (!Number.isFinite(expiryDate.getTime()) || !Number.isFinite(pickupDate.getTime()) || expiryDate <= new Date()) {
+      toast({ title: "Check the expiry time", description: "The food expiry time must be in the future.", variant: "destructive" });
+      return;
+    }
+    if (pickupDate <= new Date() || pickupDate > expiryDate) {
+      toast({ title: "Check the pickup deadline", description: "Pickup must be in the future and no later than the food expiry time.", variant: "destructive" });
       return;
     }
     
@@ -154,8 +174,8 @@ const DonationForm = () => {
         quantity: formData.quantity,
         latitude: location.lat,
         longitude: location.lng,
-        expiry_time: formData.expiry,
-        pickup_window: formData.pickup,
+        expiry_time: new Date(formData.expiry).toISOString(),
+        pickup_window: new Date(formData.pickup).toISOString(),
         donor_id: session.user.id,
         image_url: imageUrl
       });
@@ -182,11 +202,11 @@ const DonationForm = () => {
       // Redirect to donations list
       navigate("/donations");
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting donation:", error);
       toast({
         title: "Error posting donation",
-        description: error.message || "Please try again later",
+        description: error instanceof Error ? error.message : "Please try again later",
         variant: "destructive",
       });
     } finally {
@@ -253,6 +273,7 @@ const DonationForm = () => {
                 <Input 
                   id="expiry" 
                   type="datetime-local" 
+                  min={getDateTimeMin()}
                   required
                   value={formData.expiry}
                   onChange={handleInputChange}
@@ -266,6 +287,7 @@ const DonationForm = () => {
                 <Input 
                   id="pickup" 
                   type="datetime-local" 
+                  min={getDateTimeMin()}
                   required
                   value={formData.pickup}
                   onChange={handleInputChange}
@@ -327,7 +349,7 @@ const DonationForm = () => {
                   <div className="flex flex-col items-center">
                     <Upload className="h-10 w-10 text-gray-400" />
                     <p className="text-sm font-medium text-gray-700 mt-2">Upload an image</p>
-                    <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+                    <p className="text-xs text-gray-500 mt-1">Image files up to 5 MB</p>
                   </div>
                   <input 
                     id="image-upload" 

@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Edit, Trash2, Loader2 } from "lucide-react";
+import { Clock, MapPin, Trash2, Loader2 } from "lucide-react";
 import { formatDistance } from "date-fns";
 
 interface Donation {
@@ -33,8 +33,12 @@ const DonationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchDonations = async () => {
-    if (!session?.user) return;
+  const fetchDonations = useCallback(async () => {
+    if (!session?.user) {
+      setDonations([]);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -45,21 +49,21 @@ const DonationsPage = () => {
 
       if (error) throw error;
       setDonations(data as Donation[]);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching donations:", error);
       toast({
         title: "Failed to load donations",
-        description: error.message || "Please try again later",
+        description: error instanceof Error ? error.message : "Please try again later",
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session, toast]);
 
   useEffect(() => {
-    fetchDonations();
-  }, [session]);
+    void fetchDonations();
+  }, [fetchDonations]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this donation?")) return;
@@ -80,11 +84,11 @@ const DonationsPage = () => {
         title: "Donation deleted",
         description: "Your donation has been removed successfully",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error deleting donation:", error);
       toast({
         title: "Failed to delete donation",
-        description: error.message || "Please try again later",
+        description: error instanceof Error ? error.message : "Please try again later",
         variant: "destructive"
       });
     } finally {
@@ -187,15 +191,15 @@ const DonationsPage = () => {
                       <span className="font-medium">Expires:</span>
                       <span>{new Date(donation.expiry_time).toLocaleString()}</span>
                     </div>
+                    {donation.pickup_window && (
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">Pickup by:</span>
+                        <span>{new Date(donation.pickup_window).toLocaleString()}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-end space-x-2 pt-0">
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={`/donations/${donation.id}/edit`}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </a>
-                  </Button>
                   <Button 
                     variant="destructive" 
                     size="sm"

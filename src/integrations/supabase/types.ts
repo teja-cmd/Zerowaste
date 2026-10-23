@@ -72,6 +72,7 @@ export type Database = {
           name: string | null
           organization: string | null
           role: string | null
+          verification_status: string
           updated_at: string | null
         }
         Insert: {
@@ -82,6 +83,7 @@ export type Database = {
           name?: string | null
           organization?: string | null
           role?: string | null
+          verification_status?: string
           updated_at?: string | null
         }
         Update: {
@@ -92,7 +94,212 @@ export type Database = {
           name?: string | null
           organization?: string | null
           role?: string | null
+          verification_status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pickup_requests: {
+        Row: {
+          created_at: string
+          donation_id: string
+          id: string
+          message: string | null
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          donation_id: string
+          id?: string
+          message?: string | null
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          donation_id?: string
+          id?: string
+          message?: string | null
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      organization_verifications: {
+        Row: {
+          created_at: string
+          document_path: string | null
+          id: string
+          organization_name: string
+          registration_number: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_path?: string | null
+          id?: string
+          organization_name: string
+          registration_number?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_path?: string | null
+          id?: string
+          organization_name?: string
+          registration_number?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      donation_status_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          donation_id: string
+          id: string
+          new_status: string
+          note: string | null
+          previous_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          donation_id: string
+          id?: string
+          new_status: string
+          note?: string | null
+          previous_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          donation_id?: string
+          id?: string
+          new_status?: string
+          note?: string | null
+          previous_status?: string | null
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          author_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          pickup_request_id: string
+          rating: number
+        }
+        Insert: {
+          author_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          pickup_request_id: string
+          rating: number
+        }
+        Update: {
+          author_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          pickup_request_id?: string
+          rating?: number
+        }
+        Relationships: []
+      }
+      user_reports: {
+        Row: {
+          created_at: string
+          donation_id: string | null
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string | null
+          reporter_id: string
+          resolution_notes: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          donation_id?: string | null
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id?: string | null
+          reporter_id: string
+          resolution_notes?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          donation_id?: string | null
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          resolution_notes?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          data: Json
+          id: string
+          notification_type: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          data?: Json
+          id?: string
+          notification_type: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          notification_type?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -101,7 +308,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
